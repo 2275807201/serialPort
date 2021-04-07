@@ -13,8 +13,13 @@ public class SerialPortTest {
 
     public static void main(String[] args) throws Exception{
 
+        System.out.println("program start1111");
+
+        String portName = "/dev/ttyAMA0";
+        int baudRate = 9600;
+
         // 打开串口
-        SerialPort serialPort = SerialPortUtils.open("COM1", 9600, SerialPort.DATABITS_8,
+        SerialPort serialPort = SerialPortUtils.open(portName, baudRate, SerialPort.DATABITS_8,
                 SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
         // 监听串口读取数据
@@ -23,9 +28,9 @@ public class SerialPortTest {
             System.out.println(HexUtil.encodeHexStr(data));
         });
 
-        // 往串口发送数据
-        byte[] data = {1, 2, 3};
-        SerialPortUtils.write(serialPort, data);
+//        // 往串口发送数据
+//        byte[] data = {1, 2, 3};
+//        SerialPortUtils.write(serialPort, data);
 
         /*// 关闭串口
         Thread.sleep(2000);
