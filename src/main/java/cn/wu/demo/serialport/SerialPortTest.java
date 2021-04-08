@@ -4,6 +4,7 @@ import cn.hutool.core.util.HexUtil;
 import cn.wu.demo.serialport.util.SerialPortUtils;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.List;
 import org.slf4j.Logger;
@@ -18,65 +19,47 @@ public class SerialPortTest {
 
     private static Logger log = LoggerFactory.getLogger(SerialPortTest.class);
 
+    static volatile boolean shutdownFlag = false;
+
     public static void main(String[] args) throws Exception{
 
-//        log.info("开始调试");
-//        System.in.read();
+        log.info("程序开启运行");
 
         // 显示端口标识符列表
         showPortNameList();
 
-        System.out.println("program start1111");
+        // 电源最低电量，低于最低电量，树莓派关机
+        int needPower = Integer.valueOf(args[0]);
 
+        // 树莓派软连接设备端口
         String portName = "/dev/ttyS33";
-        int baudRate = 9600;
 
-        for (int i = 0; i < 3; i++) {
+        // 树莓派电量检测，低于需要的电量，执行关机操作
+        powerCheck(portName, needPower);
 
-            readPi(portName, baudRate);
-
-//            // 休息5s
-//            Thread.sleep(5000);
-
-            log.info("休息结束");
-        }
-
-
-        log.info("main 程序结束");
-
-
-//        log.info("开始发送数据11");
-//        // 往串口发送数据
-//        byte[] data = {1, 2, 3};
-//        SerialPortUtils.write(serialPort, data);
-//        log.info("发送数据结束22");
-
-        /*// 关闭串口
-        Thread.sleep(2000);
-        SerialPortUtils.close(serialPort);*/
-
-//        // 测试可用端口
-//        List<String> strings = SerialPortUtils.listPortName();
-//        log.info("列出所有可以打印的端口名：{}", strings);
-//        strings.forEach(o -> System.out.println(o));
-//
-//        log.info("列出打印名结束333");
+        log.info("程序开启运行结束");
     }
 
-    private static void readPi(String portName, int baudRate) {
+    private static void powerCheck(String portName, int needPower ) {
+
         SerialPort serialPort = null;
         try {
             // 打开串口
-            serialPort= SerialPortUtils.open(portName, baudRate, SerialPort.DATABITS_8,
+            serialPort= SerialPortUtils.open(portName, 9600, SerialPort.DATABITS_8,
                     SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
 
             final SerialPort sp = serialPort;
 
             // 监听串口读取数据
             SerialPortUtils.addListener(serialPort, () -> {
+
+                // 读取串口消息
                 byte[] data = SerialPortUtils.read(sp);
-                log.info("接收的到的字符串：{}", new String(data));
-//            System.out.println(HexUtil.encodeHexStr(data));
+                String message = new String(data);
+                log.info("接收的到的字符串：{}", message);
+
+                // 根据消息来判断是否需要关机
+                messageHandle(needPower, message);
             });
 
             // 休息5s
@@ -85,6 +68,62 @@ public class SerialPortTest {
             log.error("捕获到异常", e);
         }finally {
             serialPort.close();
+        }
+    }
+
+    /**
+     * 消息处理
+     * @param needPower
+     * @param message
+     */
+    private static void messageHandle(int needPower, String message) {
+
+        // 电量信号关键字
+        int batcap = message.indexOf("BATCAP");
+        if(batcap != -1){
+
+            // 截取字符串
+            String substring = message.substring(batcap + 6);
+
+            int i = substring.indexOf(",");
+            if(i != -1){
+
+                // 截取出电量
+                String power = substring.substring(0, i);
+
+                // 转换为电量字符串
+                int powerInt = Integer.parseInt(power.trim());
+
+                // 检查是否需要关机
+                checkShutdown(needPower, powerInt);
+
+            }
+        }
+    }
+
+    /**
+     * 检查是否需要关机
+     * @param needPower
+     * @param powerInt
+     */
+    private static void checkShutdown(int needPower, int powerInt) {
+
+        if( !shutdownFlag && needPower > powerInt){
+            log.info("当前电量：{},最低电量：{}", powerInt, needPower);
+
+            // 执行关机操作
+            doShutdown();
+        }
+    }
+
+    private static void doShutdown() {
+        try {
+            Runtime.getRuntime().exec("sudo sync");
+            Thread.sleep(1000);
+            log.info("电源开始关机");
+            Runtime.getRuntime().exec("sudo shutdown now -h");
+        } catch (Exception e) {
+            log.error("关机失败", e);
         }
     }
 
