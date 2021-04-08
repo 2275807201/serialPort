@@ -1,0 +1,23 @@
+
+ups测试，电源电量测试（ok），低电量自动关机测试(ok)，高电量开机测试(ok)
+树莓派测试 音频（ok），蓝牙(手机连接蓝牙测试ok，蓝牙音箱连接 ok )，视频(ok)
+
+改写自动关机脚本 - 手动更改gpio引脚的电平，能够引起树莓派关机。（电源电路板上有0，5v插孔，作为输入电源试一下 ok）
+当然GPIO17直接低电平也是可以的 ok
+
+
+改写电量检测脚本 - 原脚本异常处理有问题。                               
+
+
+控制引脚信号，进行开机 （ok的）
+在 /boot/config.txt 中添加相关配置就能实现关机:
+dtoverlay=gpio-shutdown
+dtoverlay=gpio-shutdown,gpio_pin=17,active_low=1,gpio_pull=up
+GPIO3开机使用，GPIO17作为关机使用。动作：接地。
+只不过，GPIO3，GPIO17 是bcm编码
+
+
+树莓派无线网配置文件在桌面上
+
+参考资料：
+电源控制：https://github.com/rcdrones/UPSPACK_V3

@@ -1,0 +1,51 @@
+
+java 可能需要
+RXTXcomm.jar
+
+Linux-x86_64 对应Linux 64位系统。
+Linux-i386 对应Linux 32位系统。
+
+mac 版本串口调试工具
+Minicom +
+Comtool + 
+screen +
+
+链接： https://blog.csdn.net/toopoo/article/details/86988110
+
+minicom -D /dev/tty.Bluetooth-Incoming-Port -b 115200
+
+---------------------------
+在树莓派上直接实验
+
+java 路径
+/usr/lib/jvm/java-11-openjdk-armhf/bin
+
+sudo ln -s /dev/ttyAMA0 /dev/ttyS33 && cd /home/pi/liangh_temp
+
+sudo java -jar serialPort-1.0-jar-with-dependencies.jar 40
+
+## 注意新参数必须在 -jar 之前
+sudo java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar serialPort-1.0-jar-with-dependencies.jar 90
+
+已经可以读取到rx口消息了，之前没有读到主要是因为没有用root用户启动，因为非root用户没法读到设备信息
+
+arp -a | grep 'e4:5f:1:6:d0:77'
+
+lsof -i:5005
+
+树莓派32位系统
+
+有demo的版本
+https://zhuanlan.zhihu.com/p/341276452
+
+其他参考链接
+https://blog.csdn.net/u013363811/article/details/44225303
+https://www.jianshu.com/p/7c03ad8a6139
+
+保底策略
+java调用命令行来获取信息
+sudo minicom -D /dev/ttyAMA0 -b 9600
+
+
+sudo minicom -D /dev/ttyS33 -b 9600
+
