@@ -6,7 +6,7 @@ Java串口编程例子
 
 微信订阅号：八卦程序
 
-
+------------------------------
 改造别人的代码，读取树莓派的信号。
 第一注意点：1.RXTXCommDriver源代码只会读取ttyS,ttySA,ttyUSB开头的设备。所以要对/dev/ttyAMA0建立软连接，如ln -s /dev/ttyAMA0 /dev/ttyS33
 但是软连接每次重启后会失效

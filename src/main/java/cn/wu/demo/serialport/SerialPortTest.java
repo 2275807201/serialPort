@@ -20,8 +20,8 @@ public class SerialPortTest {
 
     public static void main(String[] args) throws Exception{
 
-        log.info("开始调试");
-        System.in.read();
+//        log.info("开始调试");
+//        System.in.read();
 
         // 显示端口标识符列表
         showPortNameList();
@@ -31,15 +31,18 @@ public class SerialPortTest {
         String portName = "/dev/ttyS33";
         int baudRate = 9600;
 
-        // 打开串口
-        SerialPort serialPort = SerialPortUtils.open(portName, baudRate, SerialPort.DATABITS_8,
-                SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+        for (int i = 0; i < 3; i++) {
 
-        // 监听串口读取数据
-        SerialPortUtils.addListener(serialPort, () -> {
-            byte[] data = SerialPortUtils.read(serialPort);
-            System.out.println(HexUtil.encodeHexStr(data));
-        });
+            readPi(portName, baudRate);
+
+//            // 休息5s
+//            Thread.sleep(5000);
+
+            log.info("休息结束");
+        }
+
+
+        log.info("main 程序结束");
 
 
 //        log.info("开始发送数据11");
@@ -58,6 +61,31 @@ public class SerialPortTest {
 //        strings.forEach(o -> System.out.println(o));
 //
 //        log.info("列出打印名结束333");
+    }
+
+    private static void readPi(String portName, int baudRate) {
+        SerialPort serialPort = null;
+        try {
+            // 打开串口
+            serialPort= SerialPortUtils.open(portName, baudRate, SerialPort.DATABITS_8,
+                    SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+
+            final SerialPort sp = serialPort;
+
+            // 监听串口读取数据
+            SerialPortUtils.addListener(serialPort, () -> {
+                byte[] data = SerialPortUtils.read(sp);
+                log.info("接收的到的字符串：{}", new String(data));
+//            System.out.println(HexUtil.encodeHexStr(data));
+            });
+
+            // 休息5s
+            Thread.sleep(10 * 1000);
+        }catch (Exception e){
+            log.error("捕获到异常", e);
+        }finally {
+            serialPort.close();
+        }
     }
 
     /**
