@@ -17,9 +17,32 @@ public class HardwareTest {
 
 		// 执行测试
 		try {
-			test.controlFan();
+
+			// 控制风扇
+//			test.controlFan();
+
+			// 读取信号
+			test.readSignal();
+
+
 		} catch (Exception e) {
 			log.error("测试出错", e);
+		}
+	}
+
+	private void readSignal() {
+
+		// 创建一个GPIO控制器
+		final GpioController gpio = GpioFactory.getInstance();
+
+		// 获取1号GPIO针脚并设置高电平状态，对应的是树莓派上的12号针脚，可以参考pi4j提供的图片。
+		final GpioPinDigitalInput pin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_05, "gpio_5");
+
+		while (true){
+			boolean high = pin.isHigh();
+			log.info("读取到的信号是：{}", high? 1: 0);
+			// 睡眠100ms
+			sleep(100);
 		}
 	}
 
