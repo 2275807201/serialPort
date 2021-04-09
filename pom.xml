@@ -76,7 +76,7 @@
                     <archive>
                         <manifest>
                             <!-- 执行程序入口 -->
-                            <mainClass>cn.wu.demo.serialport.SerialPortTest</mainClass>
+                            <mainClass>cn.wu.demo.serialport.FileTest</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
