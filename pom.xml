@@ -43,6 +43,13 @@
             <version>2.1.7</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.pi4j/pi4j-core -->
+        <dependency>
+            <groupId>com.pi4j</groupId>
+            <artifactId>pi4j-core</artifactId>
+            <version>1.4</version>
+        </dependency>
+
     </dependencies>
 
 
@@ -76,7 +83,7 @@
                     <archive>
                         <manifest>
                             <!-- 执行程序入口 -->
-                            <mainClass>cn.wu.demo.serialport.FileTest</mainClass>
+                            <mainClass>cn.wu.demo.serialport.HardwareTest</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
